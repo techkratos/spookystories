@@ -1,0 +1,9 @@
+{
+  "name": "spookystory",
+  "version": "1.0.0",
+  "description": "A Spooky Story bot",
+  "main": "index.js",
+  "repository": "https://github.com/techkratos/spookystories.git",
+  "author": "Avinash VK, Srujan Deshpande",
+  "license": "MIT"
+}
