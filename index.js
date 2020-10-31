@@ -10,7 +10,7 @@ bot.on("ready", () => {
 })
 
 bot.on("message", msg => {
-  if(msg.content == "start" && msg.mentions.has(bot.user)){
+  if(msg.content.split(" ")[1] == "start" && msg.mentions.has(bot.user)){
     msg.channel.send("STARTING...")
   }
 })
