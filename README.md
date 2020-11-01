@@ -20,20 +20,20 @@ Read a written story or make a new one!
 1. Node.js with discord.js for the Discord bot
 2. Cockroach DB for storing all the stories and votes
 3. Google Cloud Platform
-  - Computer Engine for the Database
-  - Cloud Build
-  - Container Registry
-  - Cloud Run
+    - Computer Engine for the Database
+    - Cloud Build
+    - Container Registry
+    - Cloud Run
 
 ## Challenges we ran into
-- Working with Cloud Run, Build and App Engine
+- Working with Cloud Run, Build and App Engine. Even though the Build and Run pipeline was perfect, It always failed on the final step. Unfortunately we had to deploy the container image to Compute Engine directly due to time constraints.
 - Deploying and starting with Cockroach DB
 
 ## Accomplishments that we're proud of
-It works!
+It works! We never thought that even after starting almost a day late, we would have a working product at the end. 
 
 ## What we learned
-Cockroach DB is pretty cool and CI/CD using GCP is very useful!
+Cockroach DB is pretty cool and CI/CD using GCP is very useful! We loved exploring all the different GCP products. Avinash learnt NLP for the first time and Srujan brushed up on his SQL and node.js skills.
 
 ## What's next for Spooky Stories
-Add more stories, reddit integration, maybe even voice access?
+Add more stories, reddit integration, maybe even voice to read them out?
