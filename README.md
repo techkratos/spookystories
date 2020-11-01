@@ -8,9 +8,14 @@ We wanted to create an easy way to read and make scary stories together with fri
 Spooky Stories allows you to create your own spooky stories using a Pass the Story style format. Everyone on the Discord server has a chance to put their own additions into the story! If you're alone, you can make the story yourself :)
 
 ## How to use it
+Read a written story or make a new one!  
 - To read a random story `!boo story random`
+- To upvote the story `!boo upvote`
+- To downvote the story `!boo downvote`
+- To start a new story with a prompt `!boo start`
+- To end the story `!boo end`
+- To view all the current Channel's stories `!boo story list`
 
-If you want to read a story, you can read a random story written by someone else or even re-read your past ones.
 ## How we built it
 1. Node.js with discord.js
 2. Cockroach DB
