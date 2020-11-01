@@ -46,11 +46,22 @@ const constructStory = () => {
 })();
 
 
+async function clearCurrentStories(server, channel){
+  const client = await pool.connect();
+  console.log("clear")
+  var tmp = await client.query(`UPDATE story_tb_1 SET endv=true WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
+  console.log(tmp);
+  client.release()
+};
+
+
 bot.on("message", msg => {
   msgarr = msg.content.split(" ");
+
   if(msgarr[0] == `${PREF}` && msgarr[1] == `story`){
     let server = msg.guild.id, channel = msg.channel.id;
     if(msgarr[2] == `random`){
+      clearCurrentStories(server, channel);
       (async () => {
         const client = await pool.connect();
         console.log("j10")
@@ -61,12 +72,13 @@ bot.on("message", msg => {
       })();
     }
     else if(msgarr[2] == `list`){
+      clearCurrentStories(server, channel);
       (async () => {
         const client = await pool.connect();
         console.log("j10")
         var tmp = await client.query(`SELECT story from story_tb_1 WHERE (server='${server}' AND channel='${channel}' AND endv=true AND story IS NOT NULL);`);
         function iterate(item, index) {
-          msg.channel.send(`Story #${index}:\n ${item['story']}`);
+          msg.channel.send(`**Story #${index+1}:**\n ${item['story']}`);
         }
         tmp.rows.forEach(iterate);
         client.release()
@@ -75,23 +87,16 @@ bot.on("message", msg => {
 
   }
 
-  if(msg.content == `${PREFIX}start`){
+  else if(msg.content == `${PREFIX}start`){
     let server = msg.guild.id, channel = msg.channel.id;
     //Get all records from db and check if any unended story for the channel exists. If yes, end them
-    (async () => {
-      const client = await pool.connect();
-      console.log("j0")
-      var tmp = await client.query(`UPDATE story_tb_1 SET endv=true WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
-      console.log(tmp);
-      client.release()
-    })();
+    clearCurrentStories(server, channel);
 
     story = []
     let index = Math.floor(Math.random() * 6);
     msg.channel.send(prompts[index].content);
     flag=1;
     id = uuidv1();
-    //Create record in DB
 
     (async () => {
       const client = await pool.connect();
@@ -106,21 +111,26 @@ bot.on("message", msg => {
   else if (msg.content == `${PREFIX}end`){
     let server = msg.guild.id, channel = msg.channel.id;
     (async () => {
+      console.log("end");
       const client = await pool.connect();
-      console.log("j0")
-      var tmp = await client.query(`UPDATE story_tb_1 SET endv=true WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
-      console.log(tmp);
+      var tmp = await client.query(`SELECT story FROM story_tb_1 WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
+      let index = Math.floor(Math.random() * 3);
+      msg.channel.send(`The end. Or is it?\n${creepyGifs[index]}`);
+      msg.channel.send(`${tmp.rows[0]['story']}`);
       client.release()
+      clearCurrentStories(server, channel);
     })();
-    let index = Math.floor(Math.random() * 3);
-    msg.channel.send(`The end. Or is it?\n${creepyGifs[index]}`);
+    /*
     flag=0;
     setTimeout(()=>{
       msg.channel.send(constructStory())
     },2000)
+    */
   }
-
-  else if(flag){
+  else if(msgarr[0] == `${PREF}`){
+    msg.react('❓')
+  }
+  else{
     //If story is currently running
     //Get open story for that channel
     //Append
@@ -130,20 +140,22 @@ bot.on("message", msg => {
       const client = await pool.connect();
       console.log("j3")
       var tmp = await client.query(`SELECT story FROM story_tb_1 WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
-      console.log(tmp);
-      if(tmp.rows[0]['story']){
-        var ns = tmp.rows[0]['story']+msg.content
+      if (tmp.rowCount!=0){
+        //console.log(tmp);
+        if(tmp.rows[0]['story']){
+          var ns = tmp.rows[0]['story']+'\n'+msg.content
+        }
+        else{
+          var ns = msg.content
+        }
+        var lol = await client.query(`UPDATE story_tb_1 SET story='${ns}' WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
+        console.log(lol)
+        msg.react('💀')
       }
-      else{
-        var ns = msg.content
-      }
-      var lol = await client.query(`UPDATE story_tb_1 SET story='${ns}' WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
-      console.log(lol)
       client.release()
+      //story.push(msg.content);
     })();
 
-    story.push(msg.content);
-    msg.react('💀')
   }
 
 
