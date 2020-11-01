@@ -40,7 +40,9 @@ const constructStory = () => {
 (async () => {
   const client = await pool.connect();
   console.log("j1")
-  var lol = await client.query('CREATE TABLE IF NOT EXISTS story_tb_1 (id UUID PRIMARY KEY, server STRING, channel STRING, story STRING, endv BOOL);');
+  var lol = await client.query('CREATE TABLE IF NOT EXISTS story_tb (id UUID PRIMARY KEY, server STRING, channel STRING, story STRING, endv BOOL, votes INT);');
+  console.log(lol)
+  var lol = await client.query('CREATE TABLE IF NOT EXISTS story_view (id UUID, server STRING, channel STRING PRIMARY KEY);');
   console.log(lol)
   client.release()
 })();
@@ -49,7 +51,7 @@ const constructStory = () => {
 async function clearCurrentStories(server, channel){
   const client = await pool.connect();
   console.log("clear")
-  var tmp = await client.query(`UPDATE story_tb_1 SET endv=true WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
+  var tmp = await client.query(`UPDATE story_tb SET endv=true WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
   console.log(tmp);
   client.release()
 };
@@ -65,9 +67,12 @@ bot.on("message", msg => {
       (async () => {
         const client = await pool.connect();
         console.log("j10")
-        var tmp = await client.query(`SELECT story FROM story_tb_1 WHERE (endv=true AND story IS NOT NULL) ORDER BY random() LIMIT 1;`);
+        var tmp = await client.query(`SELECT id, story FROM story_tb WHERE (endv=true AND story IS NOT NULL) ORDER BY random() LIMIT 1;`);
         console.log(tmp);
         msg.channel.send(tmp.rows[0]['story']);
+        msg.channel.send("Vote!");
+        var id = tmp.rows[0]['id'];
+        var tmp2 = await client.query(`UPSERT INTO story_view (id, server, channel) VALUES ('${id}','${server}','${channel}');`);
         client.release()
       })();
     }
@@ -76,15 +81,49 @@ bot.on("message", msg => {
       (async () => {
         const client = await pool.connect();
         console.log("j10")
-        var tmp = await client.query(`SELECT story from story_tb_1 WHERE (server='${server}' AND channel='${channel}' AND endv=true AND story IS NOT NULL);`);
+        var tmp = await client.query(`SELECT story,votes from story_tb WHERE (server='${server}' AND channel='${channel}' AND endv=true AND story IS NOT NULL);`);
         function iterate(item, index) {
-          msg.channel.send(`**Story #${index+1}:**\n ${item['story']}`);
+          msg.channel.send(`**Story #${index+1}** Votes: ${item['votes']}\n ${item['story']}`);
         }
         tmp.rows.forEach(iterate);
         client.release()
       })();
     }
 
+  }
+
+  else if(msg.content == `${PREFIX}upvote`){
+    let server = msg.guild.id, channel = msg.channel.id;
+    (async () => {
+      const client = await pool.connect();
+      var tmp = await client.query(`SELECT id FROM story_view WHERE (server='${server}' AND channel='${channel}');`);
+      if (tmp.rowCount!=0){
+        var lol = await client.query(`UPDATE story_tb SET votes=votes+1 WHERE (id='${tmp.rows[0]['id']}');`);
+        console.log(lol)
+        msg.react('👍')
+      }
+      else {
+        msg.reply("Read a story first!");
+      }
+      client.release()
+    })();
+  }
+
+  else if(msg.content == `${PREFIX}downvote`){
+    let server = msg.guild.id, channel = msg.channel.id;
+    (async () => {
+      const client = await pool.connect();
+      var tmp = await client.query(`SELECT id FROM story_view WHERE (server='${server}' AND channel='${channel}');`);
+      if (tmp.rowCount!=0){
+        var lol = await client.query(`UPDATE story_tb SET votes=votes-1 WHERE (id='${tmp.rows[0]['id']}');`);
+        console.log(lol);
+        msg.react('👎');
+      }
+      else {
+        msg.reply("Read a story first!");
+      }
+      client.release()
+    })();
   }
 
   else if(msg.content == `${PREFIX}start`){
@@ -101,7 +140,7 @@ bot.on("message", msg => {
     (async () => {
       const client = await pool.connect();
       console.log("j2")
-      var lol = await client.query(`INSERT INTO story_tb_1 (id, server, channel, story, endv) VALUES ('${id}', '${server}', '${channel}', '${prompts[index].content}', false);`);
+      var lol = await client.query(`INSERT INTO story_tb (id, server, channel, story, endv, votes) VALUES ('${id}', '${server}', '${channel}', '', false, 0);`);
       console.log(lol)
       client.release()
     })();
@@ -113,7 +152,7 @@ bot.on("message", msg => {
     (async () => {
       console.log("end");
       const client = await pool.connect();
-      var tmp = await client.query(`SELECT story FROM story_tb_1 WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
+      var tmp = await client.query(`SELECT story FROM story_tb WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
       let index = Math.floor(Math.random() * 3);
       msg.channel.send(`The end. Or is it?\n${creepyGifs[index]}`);
       msg.channel.send(`${tmp.rows[0]['story']}`);
@@ -139,7 +178,7 @@ bot.on("message", msg => {
     (async () => {
       const client = await pool.connect();
       console.log("j3")
-      var tmp = await client.query(`SELECT story FROM story_tb_1 WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
+      var tmp = await client.query(`SELECT story FROM story_tb WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
       if (tmp.rowCount!=0){
         //console.log(tmp);
         if(tmp.rows[0]['story']){
@@ -148,7 +187,7 @@ bot.on("message", msg => {
         else{
           var ns = msg.content
         }
-        var lol = await client.query(`UPDATE story_tb_1 SET story='${ns}' WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
+        var lol = await client.query(`UPDATE story_tb SET story='${ns}' WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
         console.log(lol)
         msg.react('💀')
       }

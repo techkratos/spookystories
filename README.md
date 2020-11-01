@@ -22,3 +22,4 @@ It works!
 Cockroach DB is pretty cool and CI/CD using GCP is very useful!
 
 ## What's next for Spooky Stories
+Add more stories, reddit integration, maybe even voice access?
