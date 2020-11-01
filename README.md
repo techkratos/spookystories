@@ -16,10 +16,14 @@ Read a written story or make a new one!
 - To end the story `!boo end`
 - To view all the current Channel's stories `!boo story list`
 
-## How we built it
-1. Node.js with discord.js
-2. Cockroach DB
+## How we built it (Tech Stack)
+1. Node.js with discord.js for the Discord bot
+2. Cockroach DB for storing all the stories and votes
 3. Google Cloud Platform
+  - Computer Engine for the Database
+  - Cloud Build
+  - Container Registry
+  - Cloud Run
 
 ## Challenges we ran into
 - Working with Cloud Run, Build and App Engine
