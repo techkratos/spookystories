@@ -70,7 +70,7 @@ bot.on("message", msg => {
         var tmp = await client.query(`SELECT id, story FROM story_tb WHERE (endv=true AND story IS NOT NULL) ORDER BY random() LIMIT 1;`);
         console.log(tmp);
         msg.channel.send(tmp.rows[0]['story']);
-        msg.channel.send("Vote!");
+        msg.channel.send("Vote by typing `!boo upvote` or `!boo downvote`");
         var id = tmp.rows[0]['id'];
         var tmp2 = await client.query(`UPSERT INTO story_view (id, server, channel) VALUES ('${id}','${server}','${channel}');`);
         client.release()
@@ -103,7 +103,7 @@ bot.on("message", msg => {
         msg.react('👍')
       }
       else {
-        msg.reply("Read a story first!");
+        msg.reply("Read a story first with the command `!boo story random`");
       }
       client.release()
     })();
