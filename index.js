@@ -27,6 +27,7 @@ bot.on("ready", () => {
 })
 
 const PREFIX ="!boo "
+const PREF ="!boo"
 
 let story = []
 let flag = false;
@@ -46,6 +47,33 @@ const constructStory = () => {
 
 
 bot.on("message", msg => {
+  msgarr = msg.content.split(" ");
+  if(msgarr[0] == `${PREF}` && msgarr[1] == `story`){
+    let server = msg.guild.id, channel = msg.channel.id;
+    if(msgarr[2] == `random`){
+      (async () => {
+        const client = await pool.connect();
+        console.log("j10")
+        var tmp = await client.query(`SELECT story FROM story_tb_1 WHERE (endv=true AND story IS NOT NULL) ORDER BY random() LIMIT 1;`);
+        console.log(tmp);
+        msg.channel.send(tmp.rows[0]['story']);
+        client.release()
+      })();
+    }
+    else if(msgarr[2] == `list`){
+      (async () => {
+        const client = await pool.connect();
+        console.log("j10")
+        var tmp = await client.query(`SELECT story from story_tb_1 WHERE (server='${server}' AND channel='${channel}' AND endv=true AND story IS NOT NULL);`);
+        function iterate(item, index) {
+          msg.channel.send(`Story #${index}:\n ${item['story']}`);
+        }
+        tmp.rows.forEach(iterate);
+        client.release()
+      })();
+    }
+
+  }
 
   if(msg.content == `${PREFIX}start`){
     let server = msg.guild.id, channel = msg.channel.id;
@@ -68,7 +96,7 @@ bot.on("message", msg => {
     (async () => {
       const client = await pool.connect();
       console.log("j2")
-      var lol = await client.query(`INSERT INTO story_tb_1 (id, server, channel, story, endv) VALUES ('${id}', '${server}', '${channel}', '', false);`);
+      var lol = await client.query(`INSERT INTO story_tb_1 (id, server, channel, story, endv) VALUES ('${id}', '${server}', '${channel}', '${prompts[index].content}', false);`);
       console.log(lol)
       client.release()
     })();
@@ -103,7 +131,12 @@ bot.on("message", msg => {
       console.log("j3")
       var tmp = await client.query(`SELECT story FROM story_tb_1 WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
       console.log(tmp);
-      var ns = tmp.rows[0]['story']+msg.content
+      if(tmp.rows[0]['story']){
+        var ns = tmp.rows[0]['story']+msg.content
+      }
+      else{
+        var ns = msg.content
+      }
       var lol = await client.query(`UPDATE story_tb_1 SET story='${ns}' WHERE (server='${server}' AND channel='${channel}' AND endv=false);`);
       console.log(lol)
       client.release()
