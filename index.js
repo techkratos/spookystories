@@ -156,6 +156,8 @@ bot.on("message", msg => {
       let index = Math.floor(Math.random() * 3);
       msg.channel.send(`The end. Or is it?\n${creepyGifs[index]}`);
       msg.channel.send(`${tmp.rows[0]['story']}`);
+      msg.channel.send('This story is: scary!');
+      msg.channel.send('I predict you will get 4538 upvotes!');
       client.release()
       clearCurrentStories(server, channel);
     })();
