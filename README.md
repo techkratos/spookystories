@@ -1,9 +1,14 @@
 # Spooky Stories
 Created by Avinash VK and Srujan Deshpande
+
 ## Inspiration
-We wanted to create a fun game to play with a Halloween theme!
+We wanted to create an easy way to read and make scary stories together with friends.
+
 ## What it does
-Spooky Stories allows you to create your own spooky stories using a Pass the Story style format. Everyone on the Discord server has a chance to put their own additions into the story!  
+Spooky Stories allows you to create your own spooky stories using a Pass the Story style format. Everyone on the Discord server has a chance to put their own additions into the story! If you're alone, you can make the story yourself :)
+
+## How to use it
+- To read a random story `!boo story random`
 
 If you want to read a story, you can read a random story written by someone else or even re-read your past ones.
 ## How we built it
