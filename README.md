@@ -20,10 +20,11 @@ Read a written story or make a new one!
 1. Node.js with discord.js for the Discord bot
 2. Cockroach DB for storing all the stories and votes
 3. Google Cloud Platform
-    - Computer Engine for the Database
+    - Compute Engine for the Database
     - Cloud Build
     - Container Registry
     - Cloud Run
+    - Colab
 
 ## Challenges we ran into
 - Working with Cloud Run, Build and App Engine. Even though the Build and Run pipeline was perfect, It always failed on the final step. Unfortunately we had to deploy the container image to Compute Engine directly due to time constraints.
